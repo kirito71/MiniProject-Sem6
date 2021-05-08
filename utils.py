@@ -3,6 +3,7 @@ from minisom import MiniSom as ms
 
 def somCluster(x, input_len, row=20, col=20, sigma=0.3, learning_rate=0.5, num_iter=500):
     som = ms(x=row, y=col, input_len=input_len, sigma=sigma, learning_rate=learning_rate)
+    # print(x)
     som.random_weights_init(x)
     som.train_random(data=x, num_iteration=num_iter)
 
@@ -11,7 +12,7 @@ def somCluster(x, input_len, row=20, col=20, sigma=0.3, learning_rate=0.5, num_i
     indexGood = []
     for i in range(row):
         for j in range(col):
-            if distance_map[i, j] < 0.8:
+            if distance_map[i, j] < 0.6:
                 indexGood.append([i, j])
     mappings = som.win_map(x)
     mappings.keys()
