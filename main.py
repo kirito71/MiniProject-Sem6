@@ -1,9 +1,13 @@
+import time
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler
-import time
-from utils import somCluster
 from sklearn.cluster import KMeans
+from sklearn.decomposition import TruncatedSVD
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVC
+
+from utils import somCluster
 
 startTime = time.time()
 
@@ -12,13 +16,16 @@ startTime = time.time()
 x = pd.read_csv('DataSet/indianPines_X.csv')
 y = pd.read_csv('DataSet/indianPines_Y.csv')
 print('Initial Data: ', x.shape[0])
-columns = list(x.columns)
-X = []
-Y = []
-nFeatures = x.shape[1]
 sc = MinMaxScaler(feature_range=(0, 1))
 x = sc.fit_transform(x)
 nClasses = len(y.value_counts())
+
+# Dimensionality Reduction
+# x = KernelPCA(n_components=10, eigen_solver='arpack').fit_transform(x)
+x = TruncatedSVD(n_components=15, algorithm='arpack').fit_transform(x)
+print('Reduction Done')
+nFeatures = x.shape[1]
+columns = [i for i in range(nFeatures)]
 
 # Splitting the data set and SOM
 
@@ -26,6 +33,8 @@ df = []
 for i in range(nClasses):
     df.append(x[y['class'] == i])
 
+X = []
+Y = []
 for i in range(nClasses):
     if i == 0:
         X = somCluster(df[i], nFeatures)
@@ -65,7 +74,15 @@ while len(queue) > 0:
 
 # Final Reduced Dataset
 print('Final Training Dataset length: ', len(final))
-
+final = np.array(final)
+# print(final)
+x_train = final[:, :-1]
+y_train = final[:, -1]
 
 # Training SVM
+SVM = SVC(kernel='rbf', gamma='scale',  cache_size=2000, decision_function_shape='ovr')
+SVM.fit(x_train, y_train)
+yPredict = SVM.predict(x)
+ac_svm = accuracy_score(y, yPredict) * 100
+print('SVM Accuracy', ac_svm)
 print('Runtime:', time.time() - startTime)
