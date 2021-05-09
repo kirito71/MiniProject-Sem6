@@ -6,7 +6,6 @@ from sklearn.decomposition import KernelPCA
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
-from utils import somCluster
 from sklearn.model_selection import train_test_split
 
 
@@ -23,6 +22,7 @@ if x.shape[1] > 40:
     x = KernelPCA(n_components=30, eigen_solver='arpack').fit_transform(x)
     print('Reduction Done')
 
+
 sc = MinMaxScaler(feature_range=(0, 1))
 x = sc.fit_transform(x)
 x, x_test, y, y_test = train_test_split(x, y, test_size=0.3, stratify=y, random_state=10)
@@ -33,28 +33,8 @@ nClasses = len(y.value_counts())
 nFeatures = x.shape[1]
 columns = [i for i in range(nFeatures)]
 
-# Splitting the data set and SOM
-
-df = []
-for i in range(nClasses):
-    df.append(x[y['class'] == i])
-
-X = []
-Y = []
-for i in range(nClasses):
-    if i == 0:
-        X = somCluster(df[i], nFeatures)
-        Y = [i] * len(X)
-    else:
-        tp = somCluster(df[i], nFeatures)
-        X = np.concatenate((X, tp), axis=0)
-        Y = np.concatenate((Y, [i] * len(tp)), axis=0)
-
-# Dataset without Outliers
-X = pd.DataFrame(X, columns=columns)
-Y = pd.DataFrame(Y, columns=['class'])
-# Shape after Removing Outliers
-print('After Outlier Reduction: ', X.shape[0])
+X = pd.DataFrame(x, columns=columns)
+Y = pd.DataFrame(y, columns=['class'])
 
 # K-MEANS HOMOGENEOUS ##########################################################
 df = pd.concat([X, Y], axis=1, join='inner')
