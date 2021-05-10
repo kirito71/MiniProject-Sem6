@@ -24,7 +24,7 @@ if x.shape[1] > 40:
 sc = MinMaxScaler(feature_range=(0, 1))
 x = sc.fit_transform(x)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, stratify=y, random_state=10)
-print('Initial Training Data: ', x.shape[0])
+print('Initial Training Data: ', x_train.shape[0])
 nClasses = len(y.value_counts())
 
 # nFeatures = x.shape[1]
